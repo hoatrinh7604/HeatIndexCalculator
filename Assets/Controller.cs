@@ -123,7 +123,7 @@ public class Controller : MonoBehaviour
         listFieldParent.SetActive(true);
     }
 
-    private void CalWithAdult()
+    private void CalWithAdult(bool isFull = false)
     {
         
         double rh = double.Parse(relativeH.text);
@@ -133,7 +133,22 @@ public class Controller : MonoBehaviour
         var rh2 = rh * rh;
         var T2 = T * T;
 
-        var index = -42.379f + (2.04901523d * T) + (10.14333127d * rh) - (0.22475541d * T * rh) - (6.83783d * T2 / 1000) - (5.481717d * rh2 / 100) + (1.22874d * T2 * rh / 1000) + (8.5282d * T * rh2 / 10000) - (1.99 * T2 * rh2 / 1000000);
+        double index = 0;
+        if (!isFull)
+        {
+            //var index = -42.379f + (2.04901523d * T) + (10.14333127d * rh) - (0.22475541d * T * rh) - (6.83783d * T2 / 1000) - (5.481717d * rh2 / 100) + (1.22874d * T2 * rh / 1000) + (8.5282d * T * rh2 / 10000) - (1.99 * T2 * rh2 / 1000000);
+            index = 0.5 * (T + 61.0 + ((T - 68.0) * 1.2) + rh * 0.094);
+        }else 
+        {
+            index = -42.379f + (2.04901523d * T) + (10.14333127d * rh) - (0.22475541d * T * rh) - (6.83783d * T2 / 1000) - (5.481717d * rh2 / 100) + (1.22874d * T2 * rh / 1000) + (8.5282d * T * rh2 / 10000) - (1.99 * T2 * rh2 / 1000000);
+            if (T > 80 && T < 112 && rh < 13)
+                index -= ((13 - rh) / 4) * Mathf.Sqrt((17 - Mathf.Abs((float)T - 95)) / 17);
+            else if (T > 80 && T < 87 && rh > 85)
+                index += ((rh - 85) / 10) * ((87 - T) / 5);
+        }
+            
+        
+
         var C = TemtoC(index, 1);
         result.text = C.ToString("0.00") + "°C";   
         result2.text = index.ToString("0.00") + "°F" + " or " + (CtoK(C).ToString("0.00")) + "K";   
@@ -154,6 +169,11 @@ public class Controller : MonoBehaviour
         else if(C >= 54)
         {
             listMethods[3].SetActive(true);
+        }
+
+        if(!isFull && index > 80)
+        {
+            CalWithAdult(true);
         }
     }
 
